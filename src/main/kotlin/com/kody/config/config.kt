@@ -2,6 +2,12 @@ package com.kody.config
 
 import com.typesafe.config.ConfigFactory
 
+data class ServerConfig(
+    val port: Int,
+    val host: String,
+    val secret: String,
+    val expireTime: Int,
+)
 
 object AppConfig {
     private lateinit var serverConfig: ServerConfig
@@ -11,7 +17,8 @@ object AppConfig {
         serverConfig = ServerConfig(
             port = config.getInt("port"),
             host = config.getString("host"),
-            secret = config.getString("secret")
+            secret = config.getString("secret"),
+            expireTime = config.getInt("expire_time")
         )
     }
 
@@ -24,8 +31,3 @@ object AppConfig {
 }
 
 
-data class ServerConfig(
-    val port: Int,
-    val host: String,
-    val secret: String
-)

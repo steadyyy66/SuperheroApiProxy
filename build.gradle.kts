@@ -3,6 +3,7 @@ import com.google.protobuf.gradle.* // ⬅️ 关键导入
 plugins {
     kotlin("jvm") version "2.0.10"
     id("com.google.protobuf") version "0.9.4"
+    kotlin("plugin.serialization") version "2.0.10"
 }
 
 group = "com.kody"
@@ -36,10 +37,29 @@ dependencies {
     implementation(kotlin("stdlib"))
 
 
+    implementation("com.google.protobuf:protobuf-java:$protobufVersion")
+    implementation("com.google.protobuf:protobuf-java-util:$protobufVersion")
+    implementation("com.google.protobuf:protobuf-kotlin:$protobufVersion")
+
+    // HTTP Client
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
     implementation("io.ktor:ktor-server-core-jvm:2.3.7")
 
     // 协程
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+//    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf:2.17.0")
+//    implementation("com.fasterxml.jackson.datatype:jackson-datatype-protobuf:2.17.0") // ✅ 就是这个！
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf:2.17.0")
+    implementation("com.google.protobuf:protobuf-java-util:3.25.1")
+
 }
 
 protobuf {
