@@ -9,20 +9,22 @@ import com.kody.com.kody.utils.JsonUtils
 import com.kody.grpc.SuperHeroServiceGrpcKt
 import com.kody.grpc.SearchHeroRequest
 import com.kody.grpc.SearchHeroResponse
+import mu.KotlinLogging
 
 class SuperHeroService(
 
 ) : SuperHeroServiceGrpcKt.SuperHeroServiceCoroutineImplBase() {
-
+    private val logger = KotlinLogging.logger {}
     override suspend fun searchHero(request: SearchHeroRequest): SearchHeroResponse {
         // 先检查缓存
         val cacheValue = Cache.get(request.name)
         if (cacheValue != "") {
-            log.
+            logger.info { "catch the cache,key is {${request.name}}" }
             val resp = JsonUtils.JsonToSearchHeroResponse(cacheValue)
             return resp;
         }
 
+        logger.info { "didn't catch the cache,key is {${request.name}" }
         // 缓存未命中，调用API
         val response = SuperHeroClient.searchHero(request.name)
 
@@ -31,10 +33,9 @@ class SuperHeroService(
                 .setResponse("error")
                 .build()
         }
-        val heroes = response.resultsList
-        if (heroes != null) {
-            Cache.checkAndUpdate(request.name, heroes)
-        }
+
+        logger.info { "write the cache: ${response}" }
+        Cache.checkAndUpdate(request.name, response)
 
         return response
     }

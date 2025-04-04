@@ -1,6 +1,5 @@
 package com.kody
 
-import com.kody.cache.Cache
 import com.kody.config.AppConfig
 import com.kody.service.SuperHeroService
 import io.grpc.ServerBuilder

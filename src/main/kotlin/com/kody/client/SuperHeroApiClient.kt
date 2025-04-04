@@ -16,6 +16,7 @@ import com.kody.grpc.SearchHeroResponse
 import okhttp3.Response
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.protobuf.util.JsonFormat
+import com.kody.com.kody.utils.DigestUtils
 
 object SuperHeroClient {
     private val client = OkHttpClient()
@@ -66,15 +67,11 @@ object SuperHeroClient {
         val key = "1234567890abcdef" // 16字符密钥 (128-bit)
         val iv = "abcdef1234567890" // 16字符 IV
 
-        val secretKeySpec = SecretKeySpec(key.toByteArray(), "AES")
-        val ivParameterSpec = IvParameterSpec(iv.toByteArray())
-
-
-        val cipher = Cipher.getInstance(algorithm)
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec)
-        val decodedBytes = Base64.getDecoder().decode(AppConfig.getServerConfig().secret)
-        val decryptedBytes = cipher.doFinal(decodedBytes)
-        return String(decryptedBytes, Charsets.UTF_8)
+        return DigestUtils.Decrypte(algorithm,
+            key,
+            iv,
+            AppConfig.getServerConfig().secret
+        )
 
     }
 }
