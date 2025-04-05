@@ -28,8 +28,8 @@ object UpdatePoller {
 
                         logger.debug { "get ${name} , cacheEntry is ${cacheEntry}" }
                         //already expired
-                        if( cacheEntry?.value != null){
-                            if (Instant.now().epochSecond - cacheEntry.timestamp > 0 ) {
+                        if (cacheEntry?.value != null) {
+                            if (Instant.now().epochSecond - cacheEntry.timestamp > 0) {
                                 logger.info { "${name} cache is expire, remove it" }
                                 Cache.removeExpireCache(name)
                                 continue

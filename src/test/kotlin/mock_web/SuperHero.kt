@@ -9,6 +9,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 
+//每次被调用 heroId都会+1 ，用来模拟新增的数据
+var heroId = 0
 
 fun main() {
 
@@ -27,9 +29,14 @@ fun main() {
 
         routing {
             get("/63058498ccbb32bb8ee6e1aaa721ba76/search/{name}") {
-                val mutableResults = response.results?.toMutableList()
-                mutableResults?.add(getNewHero())
-                response.results = mutableResults
+
+                //
+                if (heroId % 2 == 0) {
+                    val mutableResults = response.results?.toMutableList()
+                    mutableResults?.add(getNewHero())
+                    response.results = mutableResults
+                }
+
                 call.respond(response)
 
             }
@@ -37,8 +44,7 @@ fun main() {
     }.start(wait = true)
 }
 
-//每次都修改 heroId
-var heroId  = 0
+
 fun getNewHero(): Hero {
 
     heroId++

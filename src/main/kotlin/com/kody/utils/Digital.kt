@@ -14,7 +14,7 @@ object DigestUtils {
         return digest.joinToString("") { "%02x".format(it) }
     }
 
-    fun Decrypte(algorithm: String, key: String, iv: String, encryptValue:String): String {
+    fun Decrypte(algorithm: String, key: String, iv: String, encryptValue: String): String {
         val secretKeySpec = SecretKeySpec(key.toByteArray(), "AES")
         val ivParameterSpec = IvParameterSpec(iv.toByteArray())
         val cipher = Cipher.getInstance(algorithm)
