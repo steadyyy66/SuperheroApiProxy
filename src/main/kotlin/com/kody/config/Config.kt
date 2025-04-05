@@ -9,6 +9,7 @@ data class ServerConfig(
     val expireTime: Int,
     val intervalMillis: Long,
     val apiWebsite: String,
+    val prometheusPort: Int
 )
 
 object AppConfig {
@@ -23,6 +24,7 @@ object AppConfig {
             expireTime = config.getInt("expire_time"),
             intervalMillis = config.getLong("interval_millis"),
             apiWebsite = config.getString("api_website"),
+            prometheusPort = config.getInt("prometheus_port"),
         )
     }
 

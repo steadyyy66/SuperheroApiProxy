@@ -1,13 +1,11 @@
 package com.kody.cache
 
-
 import com.kody.com.kody.utils.DigestUtils
 import com.kody.com.kody.utils.JsonUtils
 import com.kody.config.AppConfig
 import com.kody.grpc.SearchHeroResponse
+import io.prometheus.client.Counter
 import mu.KotlinLogging
-
-
 import java.util.concurrent.ConcurrentHashMap
 import java.time.Instant
 
@@ -23,13 +21,30 @@ object Cache {
 
     private val cache = ConcurrentHashMap<String, CacheEntry>()
 
+    private val cacheHits = Counter.build()
+        .name("cache_hits_total")
+        .help("Total number of cache hits.")
+        .register()
+    private val cacheMisses = Counter.build()
+        .name("cache_misses_total")
+        .help("Total number of cache misses.")
+        .register()
+
     fun get(searchTerm: String): String {
-        val entry = cache[searchTerm] ?: return ""
+
+        val entry = cache[searchTerm]
+        if (entry == null) {
+            cacheMisses.inc()
+            return ""
+        }
 
         if (Instant.now().epochSecond - entry.timestamp > 0) {
             removeExpireCache(searchTerm)
+            cacheMisses.inc()
             return ""
         }
+
+        cacheHits.inc()
         return entry.value
     }
 
@@ -50,7 +65,7 @@ object Cache {
 
         val value = JsonUtils.SearchHeroResponseToJson(response)
 
-        // 2. 计算 MD5
+        //  calculate MD5
         val md5Hash = DigestUtils.Md5(value)
 
         cache[searchTerm] = CacheEntry(

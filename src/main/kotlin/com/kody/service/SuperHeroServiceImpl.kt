@@ -6,10 +6,9 @@ import com.kody.cache.Cache
 import com.kody.client.SuperHeroClient
 import com.kody.com.kody.constant.Constant
 import com.kody.com.kody.utils.JsonUtils
-
-import com.kody.grpc.SuperHeroServiceGrpcKt
-import com.kody.grpc.SearchHeroRequest
-import com.kody.grpc.SearchHeroResponse
+import com.kody.daemon.ChannelBasedFlowManager
+import com.kody.grpc.*
+import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 
 class SuperHeroService(
@@ -19,6 +18,7 @@ class SuperHeroService(
 
     init {
         UpdatePoller.startPolling()
+
     }
 
     override suspend fun searchHero(request: SearchHeroRequest): SearchHeroResponse {
@@ -31,7 +31,7 @@ class SuperHeroService(
         }
 
         logger.info { "didn't catch the cache,key is {${request.name}" }
-        // 缓存未命中，调用API
+        // cache missing,call the api
         val response = SuperHeroClient.searchHero(request.name)
 
         if (response.response != Constant.HERO_API_SUCCESS) {
@@ -45,4 +45,10 @@ class SuperHeroService(
 
         return response
     }
+
+    override fun subscribeUpdates(request: SubscribeRequest): Flow<SubscribeResponse> {
+        return ChannelBasedFlowManager.registerNewSubscriber()
+    }
+
+
 }

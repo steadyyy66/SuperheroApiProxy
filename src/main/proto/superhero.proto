@@ -12,7 +12,7 @@ service SuperHeroService {
   rpc SearchHero (SearchHeroRequest) returns (SearchHeroResponse) {}
 
 
-  rpc SubscribeUpdates (SubscribeRequest) returns (stream SearchHeroResponse);
+  rpc SubscribeUpdates (SubscribeRequest) returns (stream SubscribeResponse);
 }
 
 
@@ -69,6 +69,9 @@ message Appearance {
 
 
 message SubscribeRequest {
-  string keyword = 1; // 可选，客户端想监听哪个 keyword（我们现在用不到，但可扩展）
+
 }
 
+message SubscribeResponse{
+    string keyword = 1;
+}

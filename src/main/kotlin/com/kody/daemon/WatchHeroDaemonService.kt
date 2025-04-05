@@ -5,6 +5,8 @@ import com.kody.client.SuperHeroClient.searchHero
 import com.kody.com.kody.utils.DigestUtils
 import com.kody.com.kody.utils.JsonUtils
 import com.kody.config.AppConfig
+import com.kody.daemon.ChannelBasedFlowManager
+
 
 import kotlinx.coroutines.*
 import mu.KotlinLogging
@@ -50,7 +52,8 @@ object UpdatePoller {
                         logger.info { "${name} had been modified, previous hash: ${cacheEntry?.hash}, new hash: ${newResponseHash}" }
                         //cache have been modified
                         Cache.checkAndUpdate(name, newResponse)
-
+                        //notify all
+                        ChannelBasedFlowManager.notifyAll(name)
                     }
                 } catch (e: Exception) {
                     logger.error { "Error while polling: ${e.message}" }

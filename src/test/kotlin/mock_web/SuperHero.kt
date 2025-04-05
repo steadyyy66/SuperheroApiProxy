@@ -30,10 +30,10 @@ fun main() {
         routing {
             get("/63058498ccbb32bb8ee6e1aaa721ba76/search/{name}") {
 
-                //
+                val h = getNewHero()
                 if (heroId % 2 == 0) {
                     val mutableResults = response.results?.toMutableList()
-                    mutableResults?.add(getNewHero())
+                    mutableResults?.add(h)
                     response.results = mutableResults
                 }
 
