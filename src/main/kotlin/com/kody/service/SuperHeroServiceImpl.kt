@@ -1,6 +1,7 @@
 package com.kody.service
 
 
+import com.kody.UpdatePoller
 import com.kody.cache.Cache
 import com.kody.client.SuperHeroClient
 import com.kody.com.kody.constant.Constant
@@ -15,8 +16,13 @@ class SuperHeroService(
 
 ) : SuperHeroServiceGrpcKt.SuperHeroServiceCoroutineImplBase() {
     private val logger = KotlinLogging.logger {}
+
+    init {
+        UpdatePoller.startPolling()
+    }
+
     override suspend fun searchHero(request: SearchHeroRequest): SearchHeroResponse {
-        // 先检查缓存
+        // check cache exist
         val cacheValue = Cache.get(request.name)
         if (cacheValue != "") {
             logger.info { "catch the cache,key is {${request.name}}" }

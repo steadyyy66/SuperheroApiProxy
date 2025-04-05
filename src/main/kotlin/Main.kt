@@ -12,19 +12,18 @@ fun main() {
     AppConfig.init()
     val config = AppConfig.getServerConfig()
 
-
     // 创建组件
     val service = SuperHeroService()
 
     // 启动 gRPC 服务器
     val server = ServerBuilder
-        .forPort(config.port)
+        .forPort(config.grpcPort)
         .addService(service)
         .build()
 
     server.start()
-    println("Server started on port ${config.port}")
+    println("Server started on port ${config.grpcPort}")
     server.awaitTermination()
-    println("Server running on ${config.host}:${config.port}")
+
 
 }

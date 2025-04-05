@@ -5,28 +5,45 @@ import com.kody.com.kody.utils.DigestUtils
 import com.kody.com.kody.utils.JsonUtils
 import com.kody.config.AppConfig
 import com.kody.grpc.SearchHeroResponse
+import mu.KotlinLogging
 
 
 import java.util.concurrent.ConcurrentHashMap
 import java.time.Instant
 
-private data class CacheEntry(
+data class CacheEntry(
     val value: String,
     val timestamp: Long,
     val hash: String,
 )
 
 object Cache {
+
+    private val logger = KotlinLogging.logger {}
+
     private val cache = ConcurrentHashMap<String, CacheEntry>()
 
     fun get(searchTerm: String): String {
         val entry = cache[searchTerm] ?: return ""
 
-        if (Instant.now().epochSecond - entry.timestamp > AppConfig.getServerConfig().expireTime) {
-            cache.remove(searchTerm)
+        if (Instant.now().epochSecond - entry.timestamp > 0) {
+            removeExpireCache(searchTerm)
             return ""
         }
         return entry.value
+    }
+
+    fun getKeyList(): List<String> {
+        return cache.keys.toList()
+    }
+
+    fun removeExpireCache(name: String) {
+        cache.remove(name)
+    }
+
+    fun getCacheEntry(searchTerm: String): CacheEntry? {
+        val entry = cache[searchTerm]
+        return entry
     }
 
     fun checkAndUpdate(searchTerm: String, response: SearchHeroResponse) {
@@ -38,7 +55,7 @@ object Cache {
 
         cache[searchTerm] = CacheEntry(
             value = value,
-            timestamp = Instant.now().epochSecond,
+            timestamp = Instant.now().epochSecond + AppConfig.getServerConfig().expireTime,
             hash = md5Hash
         )
     }

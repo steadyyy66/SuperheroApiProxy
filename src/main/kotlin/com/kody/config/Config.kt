@@ -3,10 +3,12 @@ package com.kody.config
 import com.typesafe.config.ConfigFactory
 
 data class ServerConfig(
-    val port: Int,
-    val host: String,
+    val grpcPort: Int,
+    val grpcHost: String,
     val secret: String,
     val expireTime: Int,
+    val intervalMillis: Long,
+    val apiWebsite: String,
 )
 
 object AppConfig {
@@ -15,10 +17,12 @@ object AppConfig {
     fun init() {
         val config = ConfigFactory.load().getConfig("server")
         serverConfig = ServerConfig(
-            port = config.getInt("port"),
-            host = config.getString("host"),
+            grpcPort = config.getInt("grpc_port"),
+            grpcHost = config.getString("grpc_host"),
             secret = config.getString("secret"),
-            expireTime = config.getInt("expire_time")
+            expireTime = config.getInt("expire_time"),
+            intervalMillis = config.getLong("interval_millis"),
+            apiWebsite = config.getString("api_website"),
         )
     }
 

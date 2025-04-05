@@ -1,20 +1,13 @@
 package com.kody.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
 import com.kody.com.kody.constant.Constant
 import com.kody.config.AppConfig
-
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.util.*
-import javax.crypto.Cipher
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.SecretKeySpec
 import com.kody.grpc.SearchHeroResponse
 import okhttp3.Response
-import com.fasterxml.jackson.module.kotlin.readValue
+
 import com.google.protobuf.util.JsonFormat
 import com.kody.com.kody.utils.DigestUtils
 
@@ -27,7 +20,7 @@ object SuperHeroClient {
 
         val accessToken = getAccessToken();
         val request = Request.Builder()
-            .url("${Constant.SUPER_HERO_API_URL}/$accessToken/search/$name")
+            .url("${AppConfig.getServerConfig().apiWebsite}/$accessToken/search/$name")
             .build()
 
         logger.debug { "begin to call api: ${request.url}" }
@@ -49,25 +42,21 @@ object SuperHeroClient {
             return builder.build()
 
         } catch (e: Exception) {
-            logger.error {"Error during API call: ${e.message}"}
+            logger.error { "Error during API call: ${e.message}" }
             throw e  // 或者 return null / Result.failure(...) 看你的需求
         } finally {
             response?.close()
         }
     }
 
-    fun jsonToProto(json: String): SearchHeroResponse {
-        val builder = SearchHeroResponse.newBuilder()
-        JsonFormat.parser().ignoringUnknownFields().merge(json, builder)
-        return builder.build()
-    }
 
     fun getAccessToken(): String {
         val algorithm = "AES/CBC/PKCS5Padding"
         val key = "1234567890abcdef" // 16字符密钥 (128-bit)
         val iv = "abcdef1234567890" // 16字符 IV
 
-        return DigestUtils.Decrypte(algorithm,
+        return DigestUtils.Decrypte(
+            algorithm,
             key,
             iv,
             AppConfig.getServerConfig().secret
@@ -76,43 +65,3 @@ object SuperHeroClient {
     }
 }
 
-data class SuperHeroResponse1(
-    val response: String,
-    val results: List<Hero>?
-)
-
-data class Hero(
-    val id: String,
-    val name: String,
-    val powerstats: PowerStats,
-    val biography: Biography,
-    val appearance: Appearance
-)
-
-data class PowerStats(
-    val intelligence: String,
-    val strength: String,
-    val speed: String,
-    val durability: String,
-    val power: String,
-    val combat: String
-)
-
-data class Biography(
-    val fullName: String,
-    val alterEgos: String,
-    val aliases: List<String>,
-    val placeOfBirth: String,
-    val firstAppearance: String,
-    val publisher: String,
-    val alignment: String
-)
-
-data class Appearance(
-    val gender: String,
-    val race: String,
-    val height: List<String>,
-    val weight: List<String>,
-    val eyeColor: String,
-    val hairColor: String
-)
