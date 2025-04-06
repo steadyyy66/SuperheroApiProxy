@@ -25,7 +25,7 @@
 ---
 
 ## 快速开始 / Quick Start
-### 1 . 准备配置 (application.conf)
+###  准备配置 (application.conf)
 ```hocon
 server {
   grpc_port       = 50051
@@ -33,19 +33,17 @@ server {
   secret          = "<aes‑cipher‑text>"   # 由 getAccessToken() 解密
   expire_time     = 300                       # 秒
   interval_millis = 60000                     # 轮询间隔,单位毫秒
-  api_website     = "https://superheroapi.com/api"
+  api_website     = "https://superheroapi.com/api"  # 访问的 Superhero API
   prometheus_port = 9090
 }
 ```
+本地为了测试不同的功能，准备了两个不同的配置
 
-### 2 . 构建并运行
-```bash
-./gradlew clean build            # 编译 & 运行全部测试
-./gradlew run                    # 启动 gRPC 服务
-```
+[application-local.conf](src%2Fmain%2Fresources%2Fapplication-local.conf)
+
+[application-superhero.conf](src%2Fmain%2Fresources%2Fapplication-superhero.conf)
 
 ---
-
 ## gRPC API
 | Method | Type | Request | Response |
 |--------|------|---------|----------|
@@ -57,17 +55,25 @@ server {
 ## 缓存策略 / Cache Policy
 * 键：搜索关键词 (`name`)
 * 值：`SearchHeroResponse` 的 JSON 序列化 ( 即 superheroapi 返回的结果)
-* 失效：`expire_time` 秒后自动删除
-* 指标：
-    * `cache_hits_total`
-    * `cache_misses_total`
-
-Prometheus metrics 暴露在 `http://<host>:<prometheus_port>/metrics`。
-
+* 失效：`expire_time` 秒后自动删除; 触发策略为
+  * 由 `WatchHeroDaemon` 周期性读取 key; 当发现 Key 过期时会删除
+  * 当用户访问该 Key 发现该 Key 过期时删除
 ---
 
+## 监控指标 (Metrics)
+
+| 指标名称                          | 描述                           |
+|----------------------------------|--------------------------------|
+| `cache_hits_total`               | 缓存命中次数                   |
+| `cache_misses_total`             | 缓存未命中次数                 |
+| `grpc_search_hero_success_total` | `searchHero` gRPC 接口成功请求数 |
+| `grpc_search_hero_failure_total` | `searchHero` gRPC 接口失败请求数 |
+| `grpc_search_hero_latency_seconds` | `searchHero` gRPC 接口请求耗时（秒） |
+| `external_api_latency_seconds`   | 调用外部 API 请求耗时（秒）    |
+
+---
 ## 异步更新 / Async Refresh
-`UpdatePoller` 使用协程在后台定时拉取最新数据：
+`WatchHeroDaemon` 使用协程在后台定时拉取最新数据：
 1. 计算新旧结果的 MD5；若发生变化则更新缓存。
 2. 通过 `ChannelBasedFlowManager.notifyAll()` 将变更关键词推送给所有 `subscribeUpdates` 订阅者。
 
@@ -88,7 +94,7 @@ Prometheus metrics 暴露在 `http://<host>:<prometheus_port>/metrics`。
 1. 将 `resources/application.conf` 切换为 `application-local.conf`。
 2. 启动 `test/mock_web/mock_super_hero.kt`，该模拟服务在请求次数为偶数时返回新数据，奇数时返回旧数据。
 3. 启动主服务并首次调用 `searchHero` 写入缓存。
-4. 观察日志：`UpdatePoller` 周期性拉取远端数据，计算 MD5 并与缓存比对；当发现差异时会刷新缓存并通过 `ChannelBasedFlowManager.notifyAll()` 推送通知给所有 `subscribeUpdates` 订阅者。
+4. 观察日志：`WatchHeroDaemon` 周期性拉取远端数据，计算 MD5 并与缓存比对；当发现差异时会刷新缓存并通过 `ChannelBasedFlowManager.notifyAll()` 推送通知给所有 `subscribeUpdates` 订阅者。
 
 ---
 
@@ -100,7 +106,7 @@ Prometheus metrics 暴露在 `http://<host>:<prometheus_port>/metrics`。
 * kotlinx‑coroutines
 * OkHttp 4
 * Prometheus client
-* JUnit 5 & kotlinx‑coroutines‑test
+* kotlinx‑coroutines‑test
 
 ---
 

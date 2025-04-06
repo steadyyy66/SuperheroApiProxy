@@ -12,7 +12,7 @@ import kotlinx.coroutines.*
 import mu.KotlinLogging
 import java.time.Instant
 
-object UpdatePoller {
+object WatchHeroDaemon {
     private val logger = KotlinLogging.logger {}
     fun startPolling() {
         val scope = CoroutineScope(Dispatchers.IO)

@@ -1,7 +1,7 @@
 package com.kody.service
 
 
-import com.kody.UpdatePoller
+import com.kody.WatchHeroDaemon
 import com.kody.cache.Cache
 import com.kody.client.SuperHeroClient
 import com.kody.com.kody.constant.Constant
@@ -35,7 +35,7 @@ class SuperHeroService(
         .register()
 
     init {
-        UpdatePoller.startPolling()
+        WatchHeroDaemon.startPolling()
 
     }
 
