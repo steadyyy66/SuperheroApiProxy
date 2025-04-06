@@ -28,7 +28,7 @@ fun main() {
         }
 
         routing {
-            get("/63058498ccbb32bb8ee6e1aaa721ba76/search/{name}") {
+            get("/63058498ccbb32bb8ee6e1aaa721ba76/search/Batman") {
 
                 val h = getNewHero()
                 if (heroId % 2 == 0) {
@@ -38,8 +38,14 @@ fun main() {
                 }
 
                 call.respond(response)
-
             }
+
+            get("/63058498ccbb32bb8ee6e1aaa721ba76/search/500") {
+
+
+                call.respond(response)
+            }
+
         }
     }.start(wait = true)
 }

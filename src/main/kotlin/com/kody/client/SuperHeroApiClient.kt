@@ -10,13 +10,20 @@ import okhttp3.Response
 
 import com.google.protobuf.util.JsonFormat
 import com.kody.com.kody.utils.EncryptionUtils
+import io.prometheus.client.Summary
 
 object SuperHeroClient {
     private val client = OkHttpClient()
 
     private val logger = KotlinLogging.logger {}
 
+    private val httpLatency = Summary.build()
+        .name("external_api_latency_seconds")
+        .help("Latency for SuperHero API requests.")
+        .register()
+
     fun searchHero(name: String): SearchHeroResponse {
+        val timer = httpLatency.startTimer()
 
         val accessToken = getAccessToken();
         val request = Request.Builder()
@@ -46,6 +53,9 @@ object SuperHeroClient {
             throw e  // 或者 return null / Result.failure(...) 看你的需求
         } finally {
             response?.close()
+            val elapsed = timer.observeDuration()
+            val formatted = String.format("%.3f", elapsed)
+            logger.info("call searchHero api finished in $formatted seconds")
         }
     }
 
