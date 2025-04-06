@@ -24,6 +24,75 @@
 
 ---
 
+## 流程图
+
+### 调用 GRPC 接口并写入缓存
+```mermaid
+sequenceDiagram
+  title SuperHero Search Flow
+  participant client as gRPC Client
+  participant service as SuperHeroService
+  participant cache as Cache
+  participant apiclient as SuperHeroClient
+  participant api as SuperHero API
+
+  client ->> service: searchHero(name)
+  service ->> cache: get(name)
+
+  alt Cache Hit
+    cache -->> service: cached data
+    service -->> client: SearchHeroResponse
+  else Cache Miss
+    cache -->> service: empty string
+    service ->> apiclient: searchHero(name)
+    apiclient ->> apiclient: getAccessToken()
+    apiclient ->> api: GET /api/{token}/search/{name}
+    api -->> apiclient: JSON Response
+    apiclient -->> service: SearchHeroResponse
+    service ->> cache: checkAndUpdate(name, response)
+    service -->> client: SearchHeroResponse
+  end
+```
+
+### 定时刷新缓存
+```mermaid
+sequenceDiagram
+  title WatchHeroDaemon Refresh Flow
+  participant poller as WatchHeroDaemon
+  participant cache as Cache
+  participant client as SuperHeroClient
+  participant api as SuperHero API
+  participant manager as ChannelBasedFlowManager
+  participant subs as Subscribers
+
+  loop Every interval
+    poller ->> cache: getKeyList()
+    cache -->> poller: List<String>
+
+    loop For each hero name
+      poller ->> cache: getCacheEntry(name)
+
+      alt Cache Entry Expired
+        poller ->> cache: removeExpireCache(name)
+      else Cache Entry Valid
+        poller ->> client: searchHero(name)
+        client ->> api: GET request
+        api -->> client: response
+
+        alt Data Modified
+          poller ->> poller: compareMD5(original, response)
+          poller ->> cache: checkAndUpdate(name, response)
+          poller ->> manager: notifyAll(name)
+          manager ->> subs: send update notification
+        end
+      end
+    end
+  end
+
+```
+
+---
+
 ## 快速开始 / Quick Start
 ###  准备配置 (application.conf)
 ```hocon
