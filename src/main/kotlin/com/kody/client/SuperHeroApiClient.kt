@@ -9,7 +9,7 @@ import com.kody.grpc.SearchHeroResponse
 import okhttp3.Response
 
 import com.google.protobuf.util.JsonFormat
-import com.kody.com.kody.utils.DigestUtils
+import com.kody.com.kody.utils.EncryptionUtils
 
 object SuperHeroClient {
     private val client = OkHttpClient()
@@ -55,7 +55,7 @@ object SuperHeroClient {
         val key = "1234567890abcdef" // 16字符密钥 (128-bit)
         val iv = "abcdef1234567890" // 16字符 IV
 
-        return DigestUtils.Decrypte(
+        return EncryptionUtils.Decrypte(
             algorithm,
             key,
             iv,

@@ -2,7 +2,7 @@ package com.kody
 
 import com.kody.cache.Cache
 import com.kody.client.SuperHeroClient.searchHero
-import com.kody.com.kody.utils.DigestUtils
+import com.kody.com.kody.utils.EncryptionUtils
 import com.kody.com.kody.utils.JsonUtils
 import com.kody.config.AppConfig
 import com.kody.daemon.ChannelBasedFlowManager
@@ -41,7 +41,7 @@ object UpdatePoller {
                         //get new message from api
                         val newResponse = searchHero(name)
                         val newResponseJson = JsonUtils.SearchHeroResponseToJson(newResponse)
-                        val newResponseHash = DigestUtils.Md5(newResponseJson)
+                        val newResponseHash = EncryptionUtils.Md5(newResponseJson)
 
                         // no modify
                         if (cacheEntry?.hash == newResponseHash) {

@@ -6,7 +6,7 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-object DigestUtils {
+object EncryptionUtils {
 
     fun Md5(input: String): String {
         val md = MessageDigest.getInstance("MD5")

@@ -1,6 +1,6 @@
 package com.kody.cache
 
-import com.kody.com.kody.utils.DigestUtils
+import com.kody.com.kody.utils.EncryptionUtils
 import com.kody.com.kody.utils.JsonUtils
 import com.kody.config.AppConfig
 import com.kody.grpc.SearchHeroResponse
@@ -66,7 +66,7 @@ object Cache {
         val value = JsonUtils.SearchHeroResponseToJson(response)
 
         //  calculate MD5
-        val md5Hash = DigestUtils.Md5(value)
+        val md5Hash = EncryptionUtils.Md5(value)
 
         cache[searchTerm] = CacheEntry(
             value = value,
