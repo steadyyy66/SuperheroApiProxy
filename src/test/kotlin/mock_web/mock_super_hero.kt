@@ -1,5 +1,6 @@
 package mock_web
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -22,7 +23,7 @@ fun main() {
     )
 
     // 启动 Web 服务并返回这个结构体
-    embeddedServer(Netty, port = 18081) {
+    embeddedServer(Netty, port = 18082) {
         install(ContentNegotiation) {
             json()
         }
@@ -31,17 +32,21 @@ fun main() {
             get("/63058498ccbb32bb8ee6e1aaa721ba76/search/Batman") {
 
                 val h = getNewHero()
-                if (heroId % 2 == 0) {
+                // 判断 heroId % 3 == 0，则返回 500
+                val heroIdInt = h.id.toIntOrNull()
+                if (heroIdInt != null && heroIdInt % 3 == 0) {
+                    call.respondText(
+                        "Internal error: Hero ID is divisible by 3",
+                        status = HttpStatusCode.InternalServerError
+                    )
+                    return@get
+                }
+                // 否则按 %2 的逻辑处理
+                if (heroIdInt != null && heroIdInt % 2 == 0) {
                     val mutableResults = response.results?.toMutableList()
                     mutableResults?.add(h)
-                    response.results = mutableResults
+                    response = response.copy(results = mutableResults)
                 }
-
-                call.respond(response)
-            }
-
-            get("/63058498ccbb32bb8ee6e1aaa721ba76/search/500") {
-
 
                 call.respond(response)
             }

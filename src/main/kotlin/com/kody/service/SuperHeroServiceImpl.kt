@@ -62,7 +62,7 @@ class SuperHeroService(
                     .build()
             }
 
-            logger.info { "write the cache: ${response}" }
+            logger.info { "write the cache: ${response.toString().replace("\n", "")}" }
             Cache.checkAndUpdate(request.name, response)
             return response
         } finally {

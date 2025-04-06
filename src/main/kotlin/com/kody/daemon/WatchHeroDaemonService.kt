@@ -28,7 +28,7 @@ object WatchHeroDaemon {
 
                         val cacheEntry = Cache.getCacheEntry(name)
 
-                        logger.debug { "get ${name} , cacheEntry is ${cacheEntry}" }
+                        logger.debug { "get ${name} , cacheEntry is ${cacheEntry.toString().replace("\n", "")}" }
                         //already expired
                         if (cacheEntry?.value != null) {
                             if (Instant.now().epochSecond - cacheEntry.timestamp > 0) {
